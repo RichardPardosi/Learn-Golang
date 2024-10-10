@@ -1,14 +1,26 @@
 package controller
 
 import (
+	"database/sql"
 	"html/template"
 	"net/http"
 	"path/filepath"
 )
 
-func NewCreateEmployeeController() func(w http.ResponseWriter, r *http.Request) {
+func NewCreateEmployeeController(db *sql.DB) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == "POST" {
+			r.ParseForm()
+
+			name := r.Form["name"][0]
+			npwp := r.Form["npwp"][0]
+			address := r.Form["address"][0]
+			_, err := db.Exec("INSERT INTO employee1 (name, npwp, address) VALUES (?, ?, ?)", name, npwp, address)
+			if err != nil {
+				w.Write([]byte(err.Error()))
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 			w.Write([]byte("test post"))
 		} else if r.Method == "GET" {
 
